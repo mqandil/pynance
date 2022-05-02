@@ -1,10 +1,72 @@
+from Data_Retrieval import TickerError
 from Portfolio_Calculator import PortfolioCalculations as pc
 
-ticker_list = [
-        "XOM", "SHW", "JPM", "AEP", "UNH", "AMZN", 
-        "KO", "BA", "AMT", "DD", "TSN", "SLG"
-    ]
+def main():
+    
+    while True:
+        try:
+            tickers = input('Please enter comma-separated list of stock tickers')   
+            ticker_list = tickers.split(', ')
+            portfolio_optimizer_instance = pc(ticker_list)
+            break
+        except TickerError:
+            print("Please enter valid ticker symbols.")
+            continue
+    
+    continue_code = True
+    while continue_code == True:
 
-print(pc(ticker_list).max_sharpe_portfolio())
-print(pc(ticker_list).min_std_portfolio())
-pc(ticker_list).efficient_frontier()
+        # Request Validation
+        validRequest = False
+        while not validRequest:
+            while True:
+                try:
+                    request = int(input(
+                        '''Please choose one of the following options by inputting the appropriate number:
+                        \n 1. Max Sharpe Portfolio \n 2. Min Variance Portfolio \n 3. Efficient Frontier'''
+                    ))
+                    break
+                except ValueError:
+                    print('Please enter a valid response.')
+                    continue
+
+            if request == 1 or request == 2 or request == 3:
+                validRequest = True
+                continue
+            else:
+                print('Please enter a valid response.')
+
+        # Get Request
+        if request == 1:
+            print('Maximum Sharpe Ratio Portfolio:')
+            max_sharpe_portfolio = portfolio_optimizer_instance.max_sharpe_portfolio()
+            print(max_sharpe_portfolio)
+        elif request == 2:
+            print('Minimum Variance Portfolio:')
+            min_std_portfolio = portfolio_optimizer_instance.min_std_portfolio()
+            print(min_std_portfolio)
+        elif request == 3:
+            print('Efficient Frontier and Capital Allocation Line:')
+            portfolio_optimizer_instance.efficient_frontier()
+        else:
+            return
+
+        # Data Validation
+        validResponse = False
+        while not validResponse:
+            continue_code_input = int(input(
+                '''Would you like to:
+                \n 1. View another portfolio \n 2. End program'''
+            ))
+            if continue_code_input == 1 or continue_code_input == 2:
+                validResponse = True
+                continue
+            else:
+                print("Please enter a valid response.")
+            
+        if continue_code_input == 1:
+            continue_code = True
+        elif continue_code_input == 2:
+            continue_code = False
+
+main()
