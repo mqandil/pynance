@@ -6,7 +6,7 @@ interval = "1mo"
 def dataretriever(ticker, period = period, interval = interval):
     #get historical data for stock in period by interval
     ticker_info = yf.Ticker(ticker)
-    market_data = ticker_info.history(period = period, interval=interval)
+    market_data = ticker_info.history(period = period, interval = interval)
 
     #select adj close line, drop N/A values, and change to percent change, then drop first column (no data)
     adj_close_data = market_data.iloc[:, 3].dropna().pct_change().dropna()
