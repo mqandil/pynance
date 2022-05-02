@@ -8,9 +8,13 @@ import pandas as pd
 import seaborn as sns
 from Risk_Free_Rate import get_risk_free_rate as grfr
 
+
+
 class PortfolioCalculations():
-    def __init__(self):
-        self.ar = ra()
+    
+    def __init__(self, ticker_list):
+        self.ticker_list = ticker_list
+        self.ar = ra(self.ticker_list)
         self.expected_return_data = self.ar.mean()
         self.covariance_matrix = self.ar.cov()
 
@@ -117,15 +121,13 @@ class PortfolioCalculations():
             {'type': 'eq', 'fun': lambda x: self.__portfolio_returns(x) - target}, 
             {'type': 'eq', 'fun': lambda x: np.sum(x) - 1}
         )
-
         bounds = tuple(
             (0, 1) for w in self.weights
         )
-
         target = np.linspace(
             start = 0, 
-            stop = 0.03,
-            num = 100
+            stop = 0.1,
+            num = 1000
         )
 
         # instantiate empty container for the objective values to be minimized
@@ -150,9 +152,25 @@ class PortfolioCalculations():
         # Rebind target to a new array object
         target = np.linspace(
         start = 0.0, 
-        stop = 0.03,
-        num = 100
+        stop = 0.1,
+        num = 1000
         )
+
+        # Determine End of EF Line
+        change_in_std = np.diff(obj_sd) / obj_sd[:-1] * 100
+        change_in_std = np.round(change_in_std, 5)
+        
+        # Remove Datapoints outside efficient frontier
+        zero_change_indices = []
+        i = 0
+        for percent in change_in_std:
+            if percent == 0:
+                zero_change_indices.append(i)
+            i += 1
+        zero_change_indices.append(obj_sd.size-1)
+
+        obj_sd = np.delete(obj_sd, zero_change_indices)
+        target = np.delete(target, zero_change_indices)
 
         #Plot Efficient Frontier
         plt.scatter(
@@ -166,6 +184,7 @@ class PortfolioCalculations():
         plt.title("Portfolio Efficient Frontier")
         plt.xlim(left=0)
         plt.ylim(bottom=0)
+        plt.plot(obj_sd, target)
 
         #Data for Tangent Line
         rfr = grfr()
@@ -185,6 +204,15 @@ class PortfolioCalculations():
         tangent_y = [rfr, max_sharpe_port_return]
         tangent_x = [0, max_sharpe_port_std]
 
+        plt.annotate("Maximal Sharpe Ratio Portfolio", (
+            max_sharpe_port_std, max_sharpe_port_return), 
+            arrowprops = dict(
+                facecolor='black', 
+                shrink = 0.05),
+            horizontalalignment = 'left', 
+            verticalalignment = 'top'
+        )
+
         plt.plot(
             tangent_x,
             tangent_y,
@@ -192,9 +220,11 @@ class PortfolioCalculations():
         )
         plt.show()
 
-
-
 if __name__ == '__main__':
-    print(PortfolioCalculations().max_sharpe_portfolio())
-    print(PortfolioCalculations().min_std_portfolio())
-    PortfolioCalculations().efficient_frontier()
+    ticker_list = [
+        "XOM", "SHW", "JPM", "AEP", "UNH", "AMZN", 
+        "KO", "BA", "AMT", "DD", "TSN", "SLG"
+    ]
+    # print(PortfolioCalculations(ticker_list).max_sharpe_portfolio())
+    # print(PortfolioCalculations(ticker_list).min_std_portfolio())
+    PortfolioCalculations(ticker_list).efficient_frontier()
