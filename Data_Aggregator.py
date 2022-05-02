@@ -1,10 +1,7 @@
 from Data_Retrieval import dataretriever as dr
 import pandas as pd
 
-ticker_list = ["XOM", "SHW", "JPM", "AEP", "UNH", "AMZN", 
-  "KO", "BA", "AMT", "DD", "TSN", "SLG"]
-
-def return_aggregator(ticker_list=ticker_list):
+def return_aggregator(ticker_list):
     ticker_data_list = []
     data_count = 0
     ticker_data_indexes = []
