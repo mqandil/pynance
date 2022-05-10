@@ -311,37 +311,37 @@ class PortfolioCalculations():
 
         fig_expected_return_range = go.Figure([
             go.Scatter(
-                name='Expected Return',
+                name='E(Rp)',
                 x=portfolio_data.index,
                 y=portfolio_data['Expected Return'],
                 mode='lines',
                 line=dict(color='rgb(31, 119, 180)'),
             ),
             go.Scatter(
-                name='+1 Standard Deviation',
+                name='μ+σ',
                 x=portfolio_data.index,
                 y=portfolio_data['Expected Return']+portfolio_data['Standard Deviation'],
                 mode='lines',
-                marker=dict(color="#444"),
-                line=dict(width=0),
-                showlegend=False
+                marker=dict(color='green'),
+                line=dict(width=0.5),
+                showlegend=True
             ),
             go.Scatter(
-                name='-1 Standard Deviation',
+                name='μ-σ',
                 x=portfolio_data.index,
                 y=portfolio_data['Expected Return']-portfolio_data['Standard Deviation'],
-                marker=dict(color="#444"),
-                line=dict(width=0),
+                marker=dict(color="red"),
+                line=dict(width=0.5),
                 mode='lines',
                 fillcolor='rgba(68, 68, 68, 0.3)',
                 fill='tonexty',
-                showlegend=False
+                showlegend=True
             )
         ])
         fig_expected_return_range.update_layout(
             yaxis_title='Portfolio Expected Return',
             xaxis_title='Portfolio ID',
-            title='Expected Return (with Standard Deviation)',
+            title='Expected Return (+/- 1 Standard Deviation)',
             hovermode="x"
         )
         fig_expected_return_range.update_layout(yaxis_tickformat=',.2%')
@@ -374,8 +374,3 @@ if __name__ == '__main__':
     # print(PortfolioCalculations(ticker_list).max_sharpe_portfolio())
     # print(PortfolioCalculations(ticker_list).min_std_portfolio())
     PortfolioCalculations(ticker_list).expected_return_range()
-
-#monthly = (1+annual)^(1/12)-1
-#monthly+1 = (1+annual)^(1/12)
-#(1/12)*ln(monthly+1) = 1+annual
-#annual = (monthly+1)^12 - 1
