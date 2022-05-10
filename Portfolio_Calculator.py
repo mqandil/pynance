@@ -139,6 +139,10 @@ class PortfolioCalculations():
 
         return portfolio_weights_df
 
+    def __tangent_line_point(self):
+        rfr = grfr() 
+        #move tangent line data here from efficient frontier and expected return range
+
     def max_sharpe_portfolio(self):
     
         max_sharpe_results = optimize.minimize(
@@ -271,7 +275,7 @@ class PortfolioCalculations():
         portfolio_weights_df['Stock 2'] = portfolio_weights_df["Stock 2 Name"] + ': ' + portfolio_weights_df["Stock 2 Pct"].astype(str)
         portfolio_weights_df['Stock 3'] = portfolio_weights_df["Stock 3 Name"] + ': ' + portfolio_weights_df["Stock 3 Pct"].astype(str)
 
-        print(portfolio_weights_df.head(20)) ##############
+        #Edit this to make calculations for all stock rankings ^^
 
         efficient_frontier_fig = px.scatter(
             data_frame=portfolio_weights_df,
@@ -345,7 +349,10 @@ class PortfolioCalculations():
             hovermode="x"
         )
         fig_expected_return_range.update_layout(yaxis_tickformat=',.2%')
-        
+
+        #add functionality for lines on max sharpe and min std portfolio points
+        #put in new function and return datapoints + portfolio ID (x value)
+
         fig_expected_return_range.show()
 
     def capital_allocation(self, portfolio_ID):
@@ -353,18 +360,16 @@ class PortfolioCalculations():
 
         ####MUST ENSURE THAT ID IS VALID AND NUMERIC
         portfolio_index = int(portfolio_ID)
+        portfolio_ID_data = portfolio_data.iloc[portfolio_index, :]
+        portfolio_data_pcts = [f'{i*100:.2f}%' for i in list(portfolio_ID_data)]
         portfolio_ID_data_df = pd.DataFrame(
-            portfolio_data.iloc[portfolio_index, :],
-            index=list(portfolio_data),
-            columns='Portfolio Weight'
+            data=portfolio_data_pcts,
+            index=list(portfolio_ID_data.index.values),
+            columns=['Portfolio Weight']
         )
-        
-        # portfolio_data.iloc[portfolio_index, :]
-        # portfolio_ID_data_df.rename(columns = ['Portfolio Weight'])
-
-        # portfolio_ID_data_df['Portfolio Weight'] = (portfolio_ID_data_df['Portfolio Weight']*100).round(2).astype(str)+'%'
 
         print(portfolio_ID_data_df)
+        return portfolio_ID_data_df
 
 
 if __name__ == '__main__':
