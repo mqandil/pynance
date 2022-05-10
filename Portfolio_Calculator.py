@@ -1,12 +1,9 @@
-from operator import index
 import scipy
 from Data_Aggregator import return_aggregator as ra
 from scipy import optimize
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 from Risk_Free_Rate import get_risk_free_rate as grfr
 import plotly.express as px
 import plotly.graph_objects as go
@@ -59,6 +56,88 @@ class PortfolioCalculations():
 
     def __portfolio_std(self, weights):
         return math.sqrt(np.dot(weights, np.dot(self.covariance_matrix, weights)))
+
+    def __portfolio_data(self):
+        constraints = (
+            {'type': 'eq', 'fun': lambda x: self.__portfolio_returns(x) - target}, 
+            {'type': 'eq', 'fun': lambda x: np.sum(x) - 1}
+        )
+        bounds = tuple(
+            (0, 1) for w in self.weights
+        )
+        target = np.linspace(
+            start = 0, 
+            stop = 0.1,
+            num = 1000
+        )
+
+        # instantiate empty container for the objective values to be minimized
+        obj_sd = []
+        obj_port_weight = []
+        # For loop to minimize objective function
+        for target in target:
+            min_result_object = optimize.minimize(
+                # Objective function
+                fun = self.__portfolio_std, 
+                # Initial guess, which is the equal weight array
+                x0 = self.equal_weights, 
+                method = 'SLSQP',
+                bounds = bounds, 
+                constraints = constraints
+            )
+            # Extract the objective value and append it to the output container
+            obj_sd.append(min_result_object['fun'])
+            obj_port_weight.append(min_result_object['x'].tolist())
+            # End of for loop
+
+        # Convert list to array
+        obj_sd = np.array(obj_sd)
+        # Rebind target to a new array object
+        target = np.linspace(
+            start = 0.0, 
+            stop = 0.1,
+            num = 1000
+        )
+
+        # Determine End of EF Line
+        change_in_std = np.diff(obj_sd) / obj_sd[:-1] * 100
+        change_in_std = np.round(change_in_std, 3)
+        
+        # Remove Datapoints outside efficient frontier
+        zero_change_indices = []
+        i = 0
+        for percent in change_in_std:
+            if percent == 0:
+                zero_change_indices.append(i)
+            i += 1
+        zero_change_indices.append(obj_sd.size-1)
+
+        obj_sd = np.delete(obj_sd, zero_change_indices)
+        target = np.delete(target, zero_change_indices)
+
+        # Removes Portfolio Weights for portfolios outside efficient frontier - new lst
+        eff_front_port_weights = []
+        i = 0
+        for lst in obj_port_weight:
+            if i not in zero_change_indices:
+                eff_front_port_weights.append(lst)
+            i += 1
+
+        annual_obj_sd = obj_sd*math.sqrt(12)
+        annual_target = (1+target)**12-1
+
+        portfolio_weights_df = pd.DataFrame(
+            data=eff_front_port_weights,
+            columns=self.ticker_list
+        )
+        
+        #Insert and Format ER/STD
+        portfolio_weights_df.insert(0, "Standard Deviation", annual_obj_sd)
+        portfolio_weights_df.insert(0, "Expected Return", annual_target)
+        portfolio_weights_df['Expected Return'] = portfolio_weights_df['Expected Return'].round(4)
+        portfolio_weights_df['Standard Deviation'] = portfolio_weights_df['Standard Deviation'].round(4)
+
+        return portfolio_weights_df
 
     def max_sharpe_portfolio(self):
     
@@ -153,78 +232,6 @@ class PortfolioCalculations():
         return min_std_final_results
 
     def efficient_frontier(self):
-        constraints = (
-            {'type': 'eq', 'fun': lambda x: self.__portfolio_returns(x) - target}, 
-            {'type': 'eq', 'fun': lambda x: np.sum(x) - 1}
-        )
-        bounds = tuple(
-            (0, 1) for w in self.weights
-        )
-        target = np.linspace(
-            start = 0, 
-            stop = 0.1,
-            num = 1000
-        )
-
-        # instantiate empty container for the objective values to be minimized
-        obj_sd = []
-        obj_port_weight = []
-        # For loop to minimize objective function
-        for target in target:
-            min_result_object = optimize.minimize(
-                # Objective function
-                fun = self.__portfolio_std, 
-                # Initial guess, which is the equal weight array
-                x0 = self.equal_weights, 
-                method = 'SLSQP',
-                bounds = bounds, 
-                constraints = constraints
-            )
-            # Extract the objective value and append it to the output container
-            obj_sd.append(min_result_object['fun'])
-            obj_port_weight.append(min_result_object['x'].tolist())
-            # End of for loop
-
-        # Convert list to array
-        obj_sd = np.array(obj_sd)
-        # Rebind target to a new array object
-        target = np.linspace(
-        start = 0.0, 
-        stop = 0.1,
-        num = 1000
-        )
-
-        # Determine End of EF Line
-        change_in_std = np.diff(obj_sd) / obj_sd[:-1] * 100
-        change_in_std = np.round(change_in_std, 3)
-        
-        # Remove Datapoints outside efficient frontier
-        zero_change_indices = []
-        i = 0
-        for percent in change_in_std:
-            if percent == 0:
-                zero_change_indices.append(i)
-            i += 1
-        zero_change_indices.append(obj_sd.size-1)
-
-        obj_sd = np.delete(obj_sd, zero_change_indices)
-        target = np.delete(target, zero_change_indices)
-
-        # Removes Portfolio Weights for portfolios outside efficient frontier - new lst
-        eff_front_port_weights = []
-        i = 0
-        for lst in obj_port_weight:
-            if i not in zero_change_indices:
-                eff_front_port_weights.append(lst)
-            i += 1
-
-        annual_obj_sd = obj_sd*math.sqrt(12)
-        annual_target = (1+target)**12-1
-
-        portfolio_weights_df = pd.DataFrame(
-            data=eff_front_port_weights,
-            columns=self.ticker_list
-        )
 
         #Data for Tangent Line
         rfr = grfr()
@@ -243,12 +250,10 @@ class PortfolioCalculations():
         #Formatting for Tangent Line
         tangent_y = [rfr, max_sharpe_port_return]
         tangent_x = [0, max_sharpe_port_std]
-        
-        #Insert and Format ER/STD
-        portfolio_weights_df.insert(0, "Standard Deviation", annual_obj_sd)
-        portfolio_weights_df.insert(0, "Expected Return", annual_target)
-        portfolio_weights_df['Expected Return'] = portfolio_weights_df['Expected Return'].round(4)
-        portfolio_weights_df['Standard Deviation'] = portfolio_weights_df['Standard Deviation'].round(4)
+
+        #Data for Portfolio Calcs
+        portfolio_weights_df = PortfolioCalculations(self.ticker_list).__portfolio_data()
+        print(portfolio_weights_df.head(20))
 
         column_end = len(portfolio_weights_df.columns)
         portfolio_weights_df['Stock 1 Pct'] = portfolio_weights_df.iloc[:, 2:column_end-1].apply(lambda x: x.nlargest(1).iloc[0], axis=1)
@@ -265,6 +270,8 @@ class PortfolioCalculations():
         portfolio_weights_df['Stock 1'] = portfolio_weights_df["Stock 1 Name"] + ': ' + portfolio_weights_df["Stock 1 Pct"].astype(str)
         portfolio_weights_df['Stock 2'] = portfolio_weights_df["Stock 2 Name"] + ': ' + portfolio_weights_df["Stock 2 Pct"].astype(str)
         portfolio_weights_df['Stock 3'] = portfolio_weights_df["Stock 3 Name"] + ': ' + portfolio_weights_df["Stock 3 Pct"].astype(str)
+
+        print(portfolio_weights_df.head(20)) ##############
 
         efficient_frontier_fig = px.scatter(
             data_frame=portfolio_weights_df,
@@ -293,14 +300,72 @@ class PortfolioCalculations():
             yshift=10,
             xshift=0
         )
+        efficient_frontier_fig.update_layout(yaxis_tickformat=',.2%')
+        efficient_frontier_fig.update_layout(xaxis_tickformat=',.2%')
 
         efficient_frontier_fig.show()
 
-    def capital_allocation(self):
-        pass
-        # cal_data = self.efficient_frontier
-        # cal_data.rfr
-        # cal_data.max_sharpe_port_return
+    def expected_return_range(self):
+        portfolio_data = PortfolioCalculations(self.ticker_list).__portfolio_data().iloc[:, 0:2]
+        #add dot for minimum std and max sharpe ratio
+
+        fig_expected_return_range = go.Figure([
+            go.Scatter(
+                name='Expected Return',
+                x=portfolio_data.index,
+                y=portfolio_data['Expected Return'],
+                mode='lines',
+                line=dict(color='rgb(31, 119, 180)'),
+            ),
+            go.Scatter(
+                name='+1 Standard Deviation',
+                x=portfolio_data.index,
+                y=portfolio_data['Expected Return']+portfolio_data['Standard Deviation'],
+                mode='lines',
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                showlegend=False
+            ),
+            go.Scatter(
+                name='-1 Standard Deviation',
+                x=portfolio_data.index,
+                y=portfolio_data['Expected Return']-portfolio_data['Standard Deviation'],
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                mode='lines',
+                fillcolor='rgba(68, 68, 68, 0.3)',
+                fill='tonexty',
+                showlegend=False
+            )
+        ])
+        fig_expected_return_range.update_layout(
+            yaxis_title='Portfolio Expected Return',
+            xaxis_title='Portfolio ID',
+            title='Expected Return (with Standard Deviation)',
+            hovermode="x"
+        )
+        fig_expected_return_range.update_layout(yaxis_tickformat=',.2%')
+        
+        fig_expected_return_range.show()
+
+    def capital_allocation(self, portfolio_ID):
+        portfolio_data = PortfolioCalculations(self.ticker_list).__portfolio_data().iloc[:, 2:]
+
+        ####MUST ENSURE THAT ID IS VALID AND NUMERIC
+        portfolio_index = int(portfolio_ID)
+        portfolio_ID_data_df = pd.DataFrame(
+            portfolio_data.iloc[portfolio_index, :],
+            index=list(portfolio_data),
+            columns='Portfolio Weight'
+        )
+        
+        # portfolio_data.iloc[portfolio_index, :]
+        # portfolio_ID_data_df.rename(columns = ['Portfolio Weight'])
+
+        # portfolio_ID_data_df['Portfolio Weight'] = (portfolio_ID_data_df['Portfolio Weight']*100).round(2).astype(str)+'%'
+
+        print(portfolio_ID_data_df)
+
 
 if __name__ == '__main__':
     ticker_list = [
@@ -308,7 +373,7 @@ if __name__ == '__main__':
     ]
     # print(PortfolioCalculations(ticker_list).max_sharpe_portfolio())
     # print(PortfolioCalculations(ticker_list).min_std_portfolio())
-    PortfolioCalculations(ticker_list).efficient_frontier()
+    PortfolioCalculations(ticker_list).expected_return_range()
 
 #monthly = (1+annual)^(1/12)-1
 #monthly+1 = (1+annual)^(1/12)
