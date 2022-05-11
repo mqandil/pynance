@@ -20,9 +20,9 @@ The Maximum Sharpe Portfolio Function returns the optimal risk-reward tradeoff p
 ## Examples of Valid Queries
 
 ```python
-from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+from from pynance import portfolio_optimizer as po
 ticker_list = ['MSFT', 'PG', 'HLI']
-portfolio = pc(ticker_list)
+portfolio = po.PortfolioCalculations(ticker_list)
 
 # get risk-return information
 risk_return = portfolio.max_sharpe_portfolio('rr')
