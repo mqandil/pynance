@@ -177,7 +177,10 @@ class PortfolioCalculations():
                 columns=["Portfolio Weight"]
             )
             if download == True:
-                max_sharpe_final_results.to_csv('max_sharpe_allocations.csv')
+                # if file_path == None:
+                    max_sharpe_final_results.to_csv('max_sharpe_allocations.csv')
+                # else:
+                #     max_sharpe_final_results.to_csv('max_sharpe_allocations.csv', path_or_buf=file_path)
 
             return max_sharpe_final_results
 
@@ -208,7 +211,7 @@ class PortfolioCalculations():
             
             return max_sharpe_fig
 
-    def min_std_portfolio(self):
+    def min_std_portfolio(self, download=False, file_path=None):
         
         min_std_results = optimize.minimize(
         # Objective function
@@ -224,6 +227,9 @@ class PortfolioCalculations():
         min_std_port_std = self.__portfolio_std(min_std_results["x"])
         #min_sd_port_sharpe = min_sd_port_return / min_sd_port_sd
 
+        risk_reward = f"The Minimum Variance Portfolio's Expected Return is {((min_std_port_return+1)**12-1)*100:.2f}% and its Standard Deviation is {min_std_port_std*math.sqrt(12)*100:.2f}%"
+        print(risk_reward)
+
         min_std_portfolio_results = [f'{value*100:.2f}%' for value in min_std_results["x"]]
 
         min_std_final_results = pd.DataFrame(
@@ -232,8 +238,7 @@ class PortfolioCalculations():
             columns=["Portfolio Weight"]
         )
 
-        risk_reward = f"The Minimum Variance Portfolio's Expected Return is {((min_std_port_return+1)**12-1)*100:.2f}% and its Standard Deviation is {min_std_port_std*math.sqrt(12)*100:.2f}%"
-        print(risk_reward)
+        
 
         fig_min_var_results = pd.DataFrame(
             data=min_std_results["x"],
@@ -394,10 +399,10 @@ if __name__ == '__main__':
     # ticker_list = [
     #     "XOM", "SHW", "JPM", "AEP", 'SNAP', 'F', 'AAPL', 'MSFT', 'BP', 'ABNB', 'PFE', 'CHGG'
     # ]
-    ticker_list = ['MSFT', 'PG', 'HLI']
+    ticker_list = ['HLI', 'PG', 'AAPL']
     # print(PortfolioCalculations(ticker_list).max_sharpe_portfolio())
     # print(PortfolioCalculations(ticker_list).min_std_portfolio())
-    test = PortfolioCalculations(ticker_list).max_sharpe_portfolio('df', True)
-    print(test)
+    test = PortfolioCalculations(ticker_list).min_std_portfolio('df', True)
+    # print(test)
     # print(test.head(3))
     # test.show()
