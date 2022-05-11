@@ -143,8 +143,13 @@ class PortfolioCalculations():
         rfr = grfr() 
         #move tangent line data here from efficient frontier and expected return range
 
-    def max_sharpe_portfolio(self):
-    
+    def max_sharpe_portfolio(self, mode, download=False, file_path=None):
+        
+        #Ensures that mode is one of valid options
+        valid = {'rr', 'df', 'pie'}
+        if mode not in valid:
+            raise ValueError("mode must be one of %r." % valid)
+
         max_sharpe_results = optimize.minimize(
             # Objective function
             fun = self.__sharpe_fun, 
@@ -159,35 +164,49 @@ class PortfolioCalculations():
         max_sharpe_port_sd = self.__portfolio_std(max_sharpe_results["x"])
         #max_sharpe_port_sharpe = max_sharpe_port_return / max_sharpe_port_sd
 
-        max_sharpe_portfolio_results = [f'{value*100:.2f}%' for value in max_sharpe_results["x"]]
+        if mode == 'rr':
+            risk_reward = f"The Maximum Sharpe Ratio Portfolio's Expected Return is {((1+max_sharpe_port_return)**12-1)*100:.2f}% and its Standard Deviation is {max_sharpe_port_sd*math.sqrt(12)*100:.2f}%"
+            return risk_reward
 
-        max_sharpe_final_results = pd.DataFrame(
-            data=max_sharpe_portfolio_results,
-            index=self.ar.columns,
-            columns=["Portfolio Weight"]
-        )
+        elif mode == 'df':
+            max_sharpe_portfolio_results = [f'{value*100:.2f}%' for value in max_sharpe_results["x"]]
 
-        risk_reward = f"The Maximum Sharpe Ratio Portfolio's Expected Return is {((1+max_sharpe_port_return)**12-1)*100:.2f}% and its Standard Deviation is {max_sharpe_port_sd*math.sqrt(12)*100:.2f}%"
-        print(risk_reward)
+            max_sharpe_final_results = pd.DataFrame(
+                data=max_sharpe_portfolio_results,
+                index=self.ar.columns,
+                columns=["Portfolio Weight"]
+            )
+            if download == True:
+                max_sharpe_final_results.to_csv('max_sharpe_allocations.csv')
 
-        fig_max_sharpe_results = pd.DataFrame(
-            data=max_sharpe_results["x"],
-            index=self.ar.columns,
-            columns=["Portfolio Weight"]
-        )
-        fig_max_sharpe_results=fig_max_sharpe_results.loc[~(fig_max_sharpe_results==0).all(axis=1)]
+            return max_sharpe_final_results
 
-        max_sharpe_fig = px.pie(
-            fig_max_sharpe_results,
-            names=fig_max_sharpe_results.index,
-            values='Portfolio Weight',
-            color_discrete_sequence=px.colors.sequential.Bluyl
-        )
-        max_sharpe_fig.update_traces(textposition='inside')
-        max_sharpe_fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
-        max_sharpe_fig.show()
+        elif mode == 'pie':
+            # pie info
+            fig_max_sharpe_results = pd.DataFrame(
+                data=max_sharpe_results["x"],
+                index=self.ar.columns,
+                columns=["Portfolio Weight"]
+            )
+            fig_max_sharpe_results=fig_max_sharpe_results.loc[~(fig_max_sharpe_results==0).all(axis=1)]
 
-        return max_sharpe_final_results
+            max_sharpe_fig = px.pie(
+                fig_max_sharpe_results,
+                names=fig_max_sharpe_results.index,
+                values='Portfolio Weight',
+                color_discrete_sequence=px.colors.sequential.Bluyl
+            )
+            max_sharpe_fig.update_traces(textposition='inside')
+            max_sharpe_fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
+            
+            if download == True:
+                if file_path == None:
+                    raise ValueError('file_path must be given: e.g. /Users/User/Desktop/Folder/file.html')
+                
+                else:
+                    max_sharpe_fig.write_html(file_path)
+            
+            return max_sharpe_fig
 
     def min_std_portfolio(self):
         
@@ -372,9 +391,13 @@ class PortfolioCalculations():
 
 
 if __name__ == '__main__':
-    ticker_list = [
-        "XOM", "SHW", "JPM", "AEP", 'SNAP', 'F', 'AAPL', 'MSFT', 'BP', 'ABNB', 'PFE', 'CHGG'
-    ]
+    # ticker_list = [
+    #     "XOM", "SHW", "JPM", "AEP", 'SNAP', 'F', 'AAPL', 'MSFT', 'BP', 'ABNB', 'PFE', 'CHGG'
+    # ]
+    ticker_list = ['MSFT', 'PG', 'HLI']
     # print(PortfolioCalculations(ticker_list).max_sharpe_portfolio())
     # print(PortfolioCalculations(ticker_list).min_std_portfolio())
-    PortfolioCalculations(ticker_list).expected_return_range()
+    test = PortfolioCalculations(ticker_list).max_sharpe_portfolio('df', True)
+    print(test)
+    # print(test.head(3))
+    # test.show()

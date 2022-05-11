@@ -24,10 +24,14 @@ Retreive a pie chart including stock portfolio weights and a chart of portfolio 
 >>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
 >>> portfolio = pc(ticker_list)
->>> portfolio.max_sharpe_portfolio()
+>>> risk_return = portfolio.max_sharpe_portfolio('rr')
+>>> print(risk_return)
 
 Maximum Sharpe Ratio Portfolio:
 The Maximum Sharpe Ratio Portfolio's Expected Return is 27.41% and its Standard Deviation is 14.23%
+
+>>> max_sharpe_df = portfolio.max_sharpe_portfolio('df')
+>>> print(max_sharpe_df.head(3))
 
       Portfolio Weight
 MSFT            54.42%
