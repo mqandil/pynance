@@ -23,7 +23,3 @@ def return_aggregator(ticker_list):
 
 if __name__ == "__main__":
     return_aggregator()
-
-
-    
-    
