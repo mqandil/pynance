@@ -9,7 +9,7 @@ See CHANGELOG.md for details (not yet updated)
 - Time period for data may be adjusted within the code but is currently not accessible from main.py
 
 ## Installation
-Portfolio Optimizer may be installed via the repo:
+pynance may be installed via the repo:
 ```bash
 git clone https://github.com/mqandil/pynance
 cd pynance
@@ -21,9 +21,9 @@ This is the most up-to-date version of `PortfolioOptimizer`
 ### Maximum Sharpe Ratio Portfolio
 Retreive a pie chart including stock portfolio weights and a chart of portfolio weights for chosen stocks with `pc(ticker_list).max_sharpe_portfolio()`. 
 ```python
->>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> from pynance import portfolio_optimizer as po
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
->>> portfolio = pc(ticker_list)
+>>> portfolio = po.PortfolioCalculations(ticker_list)
 >>> risk_return = portfolio.max_sharpe_portfolio('rr')
 >>> print(risk_return)
 
@@ -43,9 +43,9 @@ HLI              9.13%
 ### Minimum Variance Portfolio
 Retreive a pie chart including stock portfolio weights and a chart of portfolio weights for chosen stocks with `pc(ticker_list).min_std_portfolio()`.
 ```python
->>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> from from pynance import portfolio_optimizer as po
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
->>> portfolio = pc(ticker_list)
+>>> portfolio = po.PortfolioCalculations(ticker_list)
 >>> portfolio.min_std_portfolio()
 
 Minimum Variance Portfolio:
