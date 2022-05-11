@@ -1,10 +1,10 @@
 import scipy
-from Data_Aggregator import return_aggregator as ra
+from PortfolioOptimizer.Data_Aggregator import return_aggregator as ra
 from scipy import optimize
 import numpy as np
 import math
 import pandas as pd
-from Risk_Free_Rate import get_risk_free_rate as grfr
+from PortfolioOptimizer.Risk_Free_Rate import get_risk_free_rate as grfr
 import plotly.express as px
 import plotly.graph_objects as go
 

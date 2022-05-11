@@ -1,4 +1,4 @@
-from Data_Retrieval import dataretriever as dr
+from PortfolioOptimizer.Data_Retrieval import dataretriever as dr
 import pandas as pd
 
 def return_aggregator(ticker_list):

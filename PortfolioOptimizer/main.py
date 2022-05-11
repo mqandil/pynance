@@ -1,5 +1,5 @@
-from Data_Retrieval import TickerError
-from Portfolio_Calculator import PortfolioCalculations as pc
+from PortfolioOptimizer.Data_Retrieval import TickerError
+from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
 
 def main():
     
