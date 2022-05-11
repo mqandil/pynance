@@ -12,7 +12,7 @@ class PortfolioCalculations():
     
     def __init__(self, ticker_list):
         
-        self.ticker_list = ticker_list.upper()
+        self.ticker_list = ticker_list
         self.ar = ra(self.ticker_list)
         self.expected_return_data = self.ar.mean()
         self.covariance_matrix = self.ar.cov()

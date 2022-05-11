@@ -22,4 +22,4 @@ def return_aggregator(ticker_list):
     return aggregated_returns
 
 if __name__ == "__main__":
-    return_aggregator(['AAPL', 'MSFT'])
+    print(return_aggregator(['AAPL', 'MSFT']))
