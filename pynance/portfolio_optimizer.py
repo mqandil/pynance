@@ -1,9 +1,9 @@
-from datahelpers.data_aggregator import return_aggregator as ra
+from pynance.datahelpers.data_aggregator import return_aggregator as ra
 from scipy import optimize
 import numpy as np
 import math
 import pandas as pd
-from datasources.get_risk_free_rate import get_risk_free_rate as grfr
+from pynance.datasources.get_risk_free_rate import get_risk_free_rate as grfr
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -438,7 +438,7 @@ if __name__ == '__main__':
     ticker_list = ['HLI', 'PG', 'AAPL']
     # print(PortfolioCalculations(ticker_list).max_sharpe_portfolio())
     # print(PortfolioCalculations(ticker_list).min_std_portfolio())
-    test = PortfolioCalculations(ticker_list).min_var_portfolio('df', True, file_name='test.csv')
+    test = PortfolioCalculations(ticker_list).max_sharpe_portfolio('df')
     print(test)
     # print(test.head(3))
     # test.show()

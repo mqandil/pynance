@@ -1,4 +1,4 @@
-from datasources.data_retriever import dataretriever as dr
+from pynance.datasources.data_retriever import dataretriever as dr
 import pandas as pd
 
 def return_aggregator(ticker_list):
@@ -22,4 +22,4 @@ def return_aggregator(ticker_list):
     return aggregated_returns
 
 if __name__ == "__main__":
-    return_aggregator()
+    return_aggregator(['AAPL', 'MSFT'])
