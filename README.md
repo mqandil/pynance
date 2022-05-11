@@ -21,9 +21,10 @@ This is the most up-to-date version of `PortfolioOptimizer`
 ### Maximum Sharpe Ratio Portfolio
 Retreive a pie chart including stock portfolio weights and a chart of portfolio weights for chosen stocks with `pc(ticker_list).max_sharpe_portfolio()`. 
 ```python
->>> from PortfolioOptimizer import PortfolioCalculations as pc
+>>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
->>> pc(ticker_list).max_sharpe_portfolio()
+>>> portfolio = pc(ticker_list)
+>>> portfolio.max_sharpe_portfolio()
 
 Maximum Sharpe Ratio Portfolio:
 The Maximum Sharpe Ratio Portfolio's Expected Return is 27.41% and its Standard Deviation is 14.23%
@@ -38,9 +39,10 @@ HLI              9.13%
 ### Minimum Variance Portfolio
 Retreive a pie chart including stock portfolio weights and a chart of portfolio weights for chosen stocks with `pc(ticker_list).min_std_portfolio()`.
 ```python
->>> from PortfolioOptimizer import PortfolioCalculations as pc
+>>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
->>> pc(ticker_list).min_std_portfolio()
+>>> portfolio = pc(ticker_list)
+>>> portfolio.min_std_portfolio()
 
 Minimum Variance Portfolio:
 The Minimum Variance Portfolio's Expected Return is 23.07% and its Standard Deviation is 13.12%
@@ -54,7 +56,36 @@ HLI             13.58%
 
 ## Portfolio Graphics
 ### Efficient Frontier
-
+Return Scatterplot of Annualized Expected Returns and Standard Deviations for Optimized Portfolios
+```python
+>>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> ticker_list = ['MSFT', 'PG', 'HLI']
+>>> portfolio = pc(ticker_list)
+>>> portfolio.efficient_frontier()
+```
 ### Expected Returns and Standard Deviation Error
+Returns Continuous Error Bars (Standard Deviation) by Portfolio ID
+```python
+>>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> ticker_list = ['MSFT', 'PG', 'HLI']
+>>> portfolio = pc(ticker_list)
+>>> portfolio.expected_return_range()
+```
 
+## Portfolio Selection and Information
 ### Final Capital Allocation
+Returns Capital Allocation for selected Portfolio with `Portfolio_ID` argument
+```python
+>>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> ticker_list = ['MSFT', 'PG', 'HLI']
+>>> portfolio_ID = 56
+>>> portfolio = pc(ticker_list)
+>>> portfolio_56_allocation = portfolio.capital_allocation(portfolio_ID)
+>>> print(portfolio_56_allocation.head(3))
+
+      Portfolio Weight
+MSFT            37.48%
+PG              50.38%
+HLI             12.13%
+[3 rows x 1 column]
+```

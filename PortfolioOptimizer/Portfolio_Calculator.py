@@ -368,7 +368,6 @@ class PortfolioCalculations():
             columns=['Portfolio Weight']
         )
 
-        print(portfolio_ID_data_df)
         return portfolio_ID_data_df
 
 
