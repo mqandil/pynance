@@ -20,7 +20,7 @@ The Maximum Sharpe Portfolio Function returns the optimal risk-reward tradeoff p
 ## Examples of Valid Queries
 
 ```python
-from from pynance import portfolio_optimizer as po
+from pynance import portfolio_optimizer as po
 ticker_list = ['MSFT', 'PG', 'HLI']
 portfolio = po.PortfolioCalculations(ticker_list)
 
