@@ -1,5 +1,5 @@
-from PortfolioOptimizer.Data_Retrieval import TickerError
-from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+from pynance.datasources.data_retriever import TickerError
+from pynance.portfolio_optimizer import PortfolioCalculations as pc
 
 def main():
     
@@ -43,8 +43,8 @@ def main():
             print(max_sharpe_portfolio, '\n')
         elif request == 2:
             print('Minimum Variance Portfolio:')
-            min_std_portfolio = portfolio_optimizer_instance.min_std_portfolio()
-            print(min_std_portfolio, '\n')
+            min_var_portfolio = portfolio_optimizer_instance.min_var_portfolio()
+            print(min_var_portfolio, '\n')
         elif request == 3:
             print('Efficient Frontier and Capital Allocation Line:')
             portfolio_optimizer_instance.efficient_frontier()

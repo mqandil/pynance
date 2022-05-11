@@ -1,10 +1,10 @@
 import scipy
-from PortfolioOptimizer.Data_Aggregator import return_aggregator as ra
+from pynance.datahelpers.data_aggregator import return_aggregator as ra
 from scipy import optimize
 import numpy as np
 import math
 import pandas as pd
-from PortfolioOptimizer.Risk_Free_Rate import get_risk_free_rate as grfr
+from pynance.datasources.get_risk_free_rate import get_risk_free_rate as grfr
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -181,8 +181,8 @@ class PortfolioCalculations():
                     max_sharpe_final_results.to_csv('max_sharpe_allocations.csv')
                 # else:
                 #     max_sharpe_final_results.to_csv('max_sharpe_allocations.csv', path_or_buf=file_path)
-
-            return max_sharpe_final_results
+            else:
+                return max_sharpe_final_results
 
         elif mode == 'pie':
             # pie info
@@ -211,8 +211,12 @@ class PortfolioCalculations():
             
             return max_sharpe_fig
 
-    def min_std_portfolio(self, download=False, file_path=None):
+    def min_var_portfolio(self, mode, download=False, file_path=None):
         
+        valid = {'rr', 'df', 'pie'}
+        if mode not in valid:
+            raise ValueError("mode must be one of %r." % valid)
+
         min_std_results = optimize.minimize(
         # Objective function
         fun = self.__portfolio_std, 
@@ -227,37 +231,50 @@ class PortfolioCalculations():
         min_std_port_std = self.__portfolio_std(min_std_results["x"])
         #min_sd_port_sharpe = min_sd_port_return / min_sd_port_sd
 
-        risk_reward = f"The Minimum Variance Portfolio's Expected Return is {((min_std_port_return+1)**12-1)*100:.2f}% and its Standard Deviation is {min_std_port_std*math.sqrt(12)*100:.2f}%"
-        print(risk_reward)
+        if mode == 'rr':
+            risk_reward = f"The Minimum Variance Portfolio's Expected Return is {((min_std_port_return+1)**12-1)*100:.2f}% and its Standard Deviation is {min_std_port_std*math.sqrt(12)*100:.2f}%"
+            print(risk_reward)
 
-        min_std_portfolio_results = [f'{value*100:.2f}%' for value in min_std_results["x"]]
+        elif mode == 'df':
+            min_std_portfolio_results = [f'{value*100:.2f}%' for value in min_std_results["x"]]
 
-        min_std_final_results = pd.DataFrame(
-            data=min_std_portfolio_results,
-            index=self.ar.columns,
-            columns=["Portfolio Weight"]
-        )
+            min_std_final_results = pd.DataFrame(
+                data=min_std_portfolio_results,
+                index=self.ar.columns,
+                columns=["Portfolio Weight"]
+            )
+            if download == True:
+                min_std_final_results.to_csv('max_sharpe_allocations.csv')
 
-        
+            else:
+                return min_std_final_results
 
-        fig_min_var_results = pd.DataFrame(
-            data=min_std_results["x"],
-            index=self.ar.columns,
-            columns=["Portfolio Weight"]
-        )
-        fig_min_var_results=fig_min_var_results.loc[~(fig_min_var_results==0).all(axis=1)]
+        elif mode == 'pie':
 
-        min_var_fig = px.pie(
-            fig_min_var_results,
-            names=fig_min_var_results.index,
-            values='Portfolio Weight',
-            color_discrete_sequence=px.colors.sequential.Bluyl
-        )
-        min_var_fig.update_traces(textposition='inside')
-        min_var_fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
-        min_var_fig.show()
+            fig_min_var_results = pd.DataFrame(
+                data=min_std_results["x"],
+                index=self.ar.columns,
+                columns=["Portfolio Weight"]
+            )
+            fig_min_var_results=fig_min_var_results.loc[~(fig_min_var_results==0).all(axis=1)]
 
-        return min_std_final_results
+            min_var_fig = px.pie(
+                fig_min_var_results,
+                names=fig_min_var_results.index,
+                values='Portfolio Weight',
+                color_discrete_sequence=px.colors.sequential.Bluyl
+            )
+            min_var_fig.update_traces(textposition='inside')
+            min_var_fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide')
+            
+            if download == True:
+                if file_path == None:
+                    raise ValueError('file_path must be given: e.g. /Users/User/Desktop/Folder/file.html')
+                
+                else:
+                    min_var_fig.write_html(file_path)
+            
+            return min_var_fig
 
     def efficient_frontier(self):
 
@@ -276,8 +293,8 @@ class PortfolioCalculations():
         max_sharpe_port_std = (self.__portfolio_std(max_sharpe_results["x"]))*math.sqrt(12)
 
         #Formatting for Tangent Line
-        tangent_y = [rfr, max_sharpe_port_return]
-        tangent_x = [0, max_sharpe_port_std]
+        # tangent_y = [rfr, max_sharpe_port_return]
+        # tangent_x = [0, max_sharpe_port_std]
 
         #Data for Portfolio Calcs
         portfolio_weights_df = PortfolioCalculations(self.ticker_list).__portfolio_data()
@@ -331,7 +348,7 @@ class PortfolioCalculations():
         efficient_frontier_fig.update_layout(yaxis_tickformat=',.2%')
         efficient_frontier_fig.update_layout(xaxis_tickformat=',.2%')
 
-        efficient_frontier_fig.show()
+        return efficient_frontier_fig
 
     def expected_return_range(self):
         portfolio_data = PortfolioCalculations(self.ticker_list).__portfolio_data().iloc[:, 0:2]
@@ -377,7 +394,7 @@ class PortfolioCalculations():
         #add functionality for lines on max sharpe and min std portfolio points
         #put in new function and return datapoints + portfolio ID (x value)
 
-        fig_expected_return_range.show()
+        return fig_expected_return_range
 
     def capital_allocation(self, portfolio_ID):
         portfolio_data = PortfolioCalculations(self.ticker_list).__portfolio_data().iloc[:, 2:]
