@@ -1,8 +1,8 @@
-# PortfolioOptimizer
+# pynance
 ## v0.0.2-beta.1 Release: May 10, 2022
 See CHANGELOG.md for details (not yet updated)
 
-`PortfolioOptimizer` optimizes portfolios of selected stock data using Markowitz's Modern Portfolio Theory. Portfolios can currently be optimized by maximum sharpe ratio or minimum standard deviation. A portfolio's capital allocation line may also be determined. This project is a work-in-progress and does not promise any results.
+`pynance` optimizes portfolios of selected stock data using Markowitz's Modern Portfolio Theory. Portfolios can currently be optimized by maximum sharpe ratio or minimum standard deviation. A portfolio's capital allocation line may also be determined. This project is a work-in-progress and does not promise any results.
 
 ## Important Information
 - This project draws requested stock data through Yahoo!Finance and uses their adjusted close prices
@@ -11,8 +11,8 @@ See CHANGELOG.md for details (not yet updated)
 ## Installation
 Portfolio Optimizer may be installed via the repo:
 ```bash
-git clone https://github.com/mqandil/PortfolioOptimizer
-cd PortfolioOptimizer
+git clone https://github.com/mqandil/pynance
+cd pynance
 pip install -e .
 ```
 This is the most up-to-date version of `PortfolioOptimizer`
