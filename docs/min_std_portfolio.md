@@ -20,9 +20,9 @@ The Minimum Variance Portfolio Function returns the minimum risk portfolio for t
 ## Examples of Valid Queries
 
 ```python
-from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+from pynance import portfolio_optimizer as po
 ticker_list = ['MSFT', 'PG', 'HLI']
-portfolio = pc(ticker_list)
+portfolio = po.PortfolioCalculations(ticker_list)
 
 # get risk-return information
 risk_return = portfolio.min_var_portfolio('rr')
