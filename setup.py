@@ -7,12 +7,12 @@ requirements = ['pandas>=1.3.2', 'numpy>=1.21.2', 'yfinance>=0.1.70', 'scipy>=1.
 
 setup(
     name="pynance",
-    version="0.0.2",
+    version="1.0.0",
     author="Matthew Qandil",
     description="A package to Optimize Stock Portfolios",
     long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://github.com/mqandil/PortfolioOptimizer/",
+    url="https://github.com/mqandil/pynance/",
     packages=find_packages(),
     install_requires=requirements,
     classifiers=[
