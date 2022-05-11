@@ -1,6 +1,6 @@
 # Maximum Sharpe Portfolio
 
-`max_sharpe_portfolio(mode, download=False, file_path=None)`
+`max_sharpe_portfolio(mode, download=False, file_path=None, file_name='max_sharpe_allocations.csv')`
 
 The Maximum Sharpe Portfolio Function returns the optimal risk-reward tradeoff portfolio for the given stock ticker list
 
@@ -11,9 +11,11 @@ The Maximum Sharpe Portfolio Function returns the optimal risk-reward tradeoff p
 - `df:` **DataFrame** | DataFrame of chosen stocks and recommended portfolio allocation for maximum risk-reward tradeoff
 - `pie:` **Interactive Pie Chart** | pie chart visualization of recommended portfolio allocation for maximum risk-reward tradeoff
 
-`download:` download selected data to environment. Note download is in csv format for `rr` and `df`, and is in html format for `pie`. Valid arguments: `True`, `False`.
+`download:` download selected data to environment. Note download is in csv format for `rr` and `df`, and is in html format for `pie`. Downloads to current working directory for `df` and chosen location for `rr` (see `file_path`). Valid arguments: `True`, `False`.
 
-`file_path:` pathname of location to download interactive pie chart with `pie` argument. Required argument for `pie`, optional argument for `df`.
+`file_path:` pathname of location and file name to download interactive pie chart with `pie` argument. Required argument for `pie` only.
+
+`file_name:` file name to download for `df` argumnet. Required argument for `df` only.
 
 ## Examples of Valid Queries
 

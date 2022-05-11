@@ -1,10 +1,9 @@
-import scipy
-from pynance.datahelpers.data_aggregator import return_aggregator as ra
+from datahelpers.data_aggregator import return_aggregator as ra
 from scipy import optimize
 import numpy as np
 import math
 import pandas as pd
-from pynance.datasources.get_risk_free_rate import get_risk_free_rate as grfr
+from datasources.get_risk_free_rate import get_risk_free_rate as grfr
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -12,7 +11,8 @@ import plotly.graph_objects as go
 class PortfolioCalculations():
     
     def __init__(self, ticker_list):
-        self.ticker_list = ticker_list
+        
+        self.ticker_list = ticker_list.upper()
         self.ar = ra(self.ticker_list)
         self.expected_return_data = self.ar.mean()
         self.covariance_matrix = self.ar.cov()
@@ -143,7 +143,7 @@ class PortfolioCalculations():
         rfr = grfr() 
         #move tangent line data here from efficient frontier and expected return range
 
-    def max_sharpe_portfolio(self, mode, download=False, file_path=None):
+    def max_sharpe_portfolio(self, mode, download=False, file_path=None, file_name='max_sharpe_allocations.csv'):
         
         #Ensures that mode is one of valid options
         valid = {'rr', 'df', 'pie'}
@@ -178,7 +178,7 @@ class PortfolioCalculations():
             )
             if download == True:
                 # if file_path == None:
-                    max_sharpe_final_results.to_csv('max_sharpe_allocations.csv')
+                    max_sharpe_final_results.to_csv(file_name)
                 # else:
                 #     max_sharpe_final_results.to_csv('max_sharpe_allocations.csv', path_or_buf=file_path)
             else:
@@ -211,7 +211,7 @@ class PortfolioCalculations():
             
             return max_sharpe_fig
 
-    def min_var_portfolio(self, mode, download=False, file_path=None):
+    def min_var_portfolio(self, mode, download=False, file_path=None, file_name='min_var_allocations.csv'):
         
         valid = {'rr', 'df', 'pie'}
         if mode not in valid:
@@ -244,7 +244,7 @@ class PortfolioCalculations():
                 columns=["Portfolio Weight"]
             )
             if download == True:
-                min_std_final_results.to_csv('max_sharpe_allocations.csv')
+                min_std_final_results.to_csv(file_name)
 
             else:
                 return min_std_final_results
@@ -276,7 +276,7 @@ class PortfolioCalculations():
             
             return min_var_fig
 
-    def efficient_frontier(self):
+    def efficient_frontier(self, download=False, file_path=None):
 
         #Data for Tangent Line
         rfr = grfr()
@@ -348,9 +348,17 @@ class PortfolioCalculations():
         efficient_frontier_fig.update_layout(yaxis_tickformat=',.2%')
         efficient_frontier_fig.update_layout(xaxis_tickformat=',.2%')
 
-        return efficient_frontier_fig
+        if download == True:
+                if file_path == None:
+                    raise ValueError('file_path must be given: e.g. /Users/User/Desktop/Folder/file.html')
+                
+                else:
+                    efficient_frontier_fig.write_html(file_path)
 
-    def expected_return_range(self):
+        else:
+            return efficient_frontier_fig
+
+    def expected_return_range(self, download=False, file_path=None):
         portfolio_data = PortfolioCalculations(self.ticker_list).__portfolio_data().iloc[:, 0:2]
         #add dot for minimum std and max sharpe ratio
 
@@ -394,9 +402,16 @@ class PortfolioCalculations():
         #add functionality for lines on max sharpe and min std portfolio points
         #put in new function and return datapoints + portfolio ID (x value)
 
+        if download == True:
+                if file_path == None:
+                    raise ValueError('file_path must be given: e.g. /Users/User/Desktop/Folder/file.html')
+                
+                else:
+                    fig_expected_return_range.write_html(file_path)
+
         return fig_expected_return_range
 
-    def capital_allocation(self, portfolio_ID):
+    def capital_allocation(self, portfolio_ID, download=False, file_name='portfolio_id_data.csv'):
         portfolio_data = PortfolioCalculations(self.ticker_list).__portfolio_data().iloc[:, 2:]
 
         ####MUST ENSURE THAT ID IS VALID AND NUMERIC
@@ -409,7 +424,11 @@ class PortfolioCalculations():
             columns=['Portfolio Weight']
         )
 
-        return portfolio_ID_data_df
+        if download == True:
+                # if file_path == None:
+                    portfolio_ID_data_df.to_csv(file_name)
+        else:
+            return portfolio_ID_data_df
 
 
 if __name__ == '__main__':
@@ -419,7 +438,7 @@ if __name__ == '__main__':
     ticker_list = ['HLI', 'PG', 'AAPL']
     # print(PortfolioCalculations(ticker_list).max_sharpe_portfolio())
     # print(PortfolioCalculations(ticker_list).min_std_portfolio())
-    test = PortfolioCalculations(ticker_list).min_std_portfolio('df', True)
-    # print(test)
+    test = PortfolioCalculations(ticker_list).min_var_portfolio('df', True, file_name='test.csv')
+    print(test)
     # print(test.head(3))
     # test.show()

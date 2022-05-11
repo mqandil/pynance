@@ -1,8 +1,8 @@
 # Minimum Variance Portfolio
 
-`min_var_portfolio(mode, download=False, file_path=None)`
+`min_var_portfolio(mode, download=False, file_path=None, file_name='min_var_portfolio')`
 
-The Maximum Sharpe Portfolio Function returns the optimal risk-reward tradeoff portfolio for the given stock ticker list
+The Minimum Variance Portfolio Function returns the minimum risk portfolio for the given stock ticker list
 
 ## Arguments
 
@@ -13,7 +13,9 @@ The Maximum Sharpe Portfolio Function returns the optimal risk-reward tradeoff p
 
 `download:` download selected data to environment. Note download is in csv format for `rr` and `df`, and is in html format for `pie`. Valid arguments: `True`, `False`.
 
-`file_path:` pathname of location to download interactive pie chart with `pie` argument. Required argument for `pie`, optional argument for `df`.
+`file_path:` pathname of location and file name to download interactive pie chart with `pie` argument. Required argument for `pie` only.
+
+`file_name:` file name to download for `df` argumnet. Required argument for `df` only.
 
 ## Examples of Valid Queries
 
@@ -23,17 +25,17 @@ ticker_list = ['MSFT', 'PG', 'HLI']
 portfolio = pc(ticker_list)
 
 # get risk-return information
-risk_return = portfolio.max_sharpe_portfolio('rr')
+risk_return = portfolio.min_var_portfolio('rr')
 print(risk_return)
 
 # return capital allocation dataframe
-ca_df = portfolio.max_sharpe_portfolio('df')
+ca_df = portfolio.min_var_portfolio('df')
 print(ca_df.head(3))
 
 # retreive interactive pie chart
-ca_pie = portfolio.max_sharpe_portfolio('pie')
+ca_pie = portfolio.min_var_portfolio('pie')
 ca_pie.show()
 
 # save interactive pie chart
-portfolio.max_sharpe_portfolio('pie', download=True, file_path='/Users/User/Desktop/Folder/file.html')
+portfolio.min_var_portfolio('pie', download=True, file_path='/Users/User/Desktop/Folder/file.html')
 ```

@@ -1,4 +1,4 @@
-from pynance.datasources.data_retriever import dataretriever as dr
+from datasources.data_retriever import dataretriever as dr
 import pandas as pd
 
 def return_aggregator(ticker_list):
