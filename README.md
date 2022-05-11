@@ -1,12 +1,14 @@
 # pynance
-## v0.0.2-beta.1 Release: May 10, 2022
-See CHANGELOG.md for details (not yet updated)
+## v1.0.0 Release: May 11, 2022
+See [CHANGELOG.md](CHANGELOG.md) for details
 
-`pynance` optimizes portfolios of selected stock data using Markowitz's Modern Portfolio Theory. Portfolios can currently be optimized by maximum sharpe ratio or minimum standard deviation. A portfolio's capital allocation line may also be determined. This project is a work-in-progress and does not promise any results.
+`pynance` creates various financial models and relevant graphics. This project is a work-in-progress and does not promise any results. See [docs](docs) for a comprehensive list of functions and functionality. 
 
 ## Important Information
-- This project draws requested stock data through Yahoo!Finance and uses their adjusted close prices
-- Time period for data may be adjusted within the code but is currently not accessible from main.py
+
+This project currently draws requested stock data through Yahoo!Finance and uses their adjusted close prices for necessary computations
+
+Time period for data and time horizon may be adjusted within the code but is currently not accessible from main functionality
 
 ## Installation
 pynance may be installed via the repo:
@@ -15,11 +17,13 @@ git clone https://github.com/mqandil/pynance
 cd pynance
 pip install -e .
 ```
-This is the most up-to-date version of `PortfolioOptimizer`
+This is the most up-to-date version of `pynance`
 
-## Optimal Portfolios
+## Portfolio Optimizer
+`portfolio_optimizer` optimizes portfolios of selected stock data using Markowitz's Modern Portfolio Theory. Portfolios can currently be optimized by maximum sharpe ratio or minimum standard deviation. A portfolio's capital allocation line may also be determined.
+
 ### Maximum Sharpe Ratio Portfolio
-Retreive a pie chart including stock portfolio weights and a chart of portfolio weights for chosen stocks with `pc(ticker_list).max_sharpe_portfolio()`. 
+Retreive a dataframe of expected returns and standard deviation, or a dataframe or pie chart including stock portfolio weights with `max_sharpe_portfolio()`. 
 ```python
 >>> from pynance import portfolio_optimizer as po
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
@@ -27,8 +31,9 @@ Retreive a pie chart including stock portfolio weights and a chart of portfolio 
 >>> risk_return = portfolio.max_sharpe_portfolio('rr')
 >>> print(risk_return)
 
-Maximum Sharpe Ratio Portfolio:
-The Maximum Sharpe Ratio Portfolio's Expected Return is 27.41% and its Standard Deviation is 14.23%
+                   Max Sharpe Portfolio
+Expected Return                  27.03%
+Standard Deviation               14.28%
 
 >>> max_sharpe_df = portfolio.max_sharpe_portfolio('df')
 >>> print(max_sharpe_df.head(3))
@@ -41,15 +46,20 @@ HLI              9.13%
 ```
 
 ### Minimum Variance Portfolio
-Retreive a pie chart including stock portfolio weights and a chart of portfolio weights for chosen stocks with `pc(ticker_list).min_std_portfolio()`.
+Retreive a pie chart including stock portfolio weights and a chart of portfolio weights for chosen stocks with `min_std_portfolio()`.
 ```python
->>> from from pynance import portfolio_optimizer as po
+>>> from pynance import portfolio_optimizer as po
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
 >>> portfolio = po.PortfolioCalculations(ticker_list)
->>> portfolio.min_std_portfolio()
+>>> risk_return = portfolio.min_var_portfolio('rr')
+>>> print(risk_return)
 
-Minimum Variance Portfolio:
-The Minimum Variance Portfolio's Expected Return is 23.07% and its Standard Deviation is 13.12%
+                   Min Var Portfolio
+Expected Return               22.76%
+Standard Deviation            13.17%
+
+>>> min_var_df = portfolio.min_var_portfolio('df')
+>>> print(min_var_df.head(3))
 
       Portfolio Weight
 MSFT            29.23%
@@ -57,33 +67,31 @@ PG              57.19%
 HLI             13.58% 
 [3 rows x 1 column]
 ```
-
-## Portfolio Graphics
 ### Efficient Frontier
-Return Scatterplot of Annualized Expected Returns and Standard Deviations for Optimized Portfolios
+Return Scatterplot of Annualized Expected Returns and Standard Deviations for Optimized Portfolios with `efficient_frontier()`
 ```python
->>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> from pynance import portfolio_optimizer as po
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
->>> portfolio = pc(ticker_list)
->>> portfolio.efficient_frontier()
+>>> portfolio = po.PortfolioCalculations(ticker_list)
+>>> fig = portfolio.efficient_frontier()
+>>> fig.show()
 ```
 ### Expected Returns and Standard Deviation Error
-Returns Continuous Error Bars (Standard Deviation) by Portfolio ID
+Return Continuous Error Bars (Standard Deviation) by Portfolio ID with `expected_return_range()`
 ```python
->>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> from pynance import portfolio_optimizer as po
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
->>> portfolio = pc(ticker_list)
->>> portfolio.expected_return_range()
+>>> portfolio = po.PortfolioCalculations(ticker_list)
+>>> fig = portfolio.expected_return_range()
+>>> fig.show()
 ```
-
-## Portfolio Selection and Information
 ### Final Capital Allocation
-Returns Capital Allocation for selected Portfolio with `Portfolio_ID` argument
+Returns Capital Allocation for selected Portfolio with `Portfolio_ID` argument with `capital_allocation()`
 ```python
->>> from PortfolioOptimizer.Portfolio_Calculator import PortfolioCalculations as pc
+>>> from pynance import portfolio_optimizer as po
 >>> ticker_list = ['MSFT', 'PG', 'HLI']
 >>> portfolio_ID = 56
->>> portfolio = pc(ticker_list)
+>>> portfolio = po.PortfolioCalculations(ticker_list)
 >>> portfolio_56_allocation = portfolio.capital_allocation(portfolio_ID)
 >>> print(portfolio_56_allocation.head(3))
 
@@ -93,3 +101,7 @@ PG              50.38%
 HLI             12.13%
 [3 rows x 1 column]
 ```
+## Valuation Virtuoso
+`valuation_virtuoso` creates discounted cash flow models for selected publicly-traded firms and returns models, charts, and an estimated stock price valuation.
+
+Coming Soon...
